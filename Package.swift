@@ -21,8 +21,8 @@ let package = Package(
     targets: [
         .target(name: "swift-spell", dependencies: ["ArgumentParser", "SwiftSpell"]),
         .target(name: "SwiftSpell", dependencies: ["SwiftSpellCheckers", "SwiftSpellParser", "SwiftSpellUtils", "Yams"]),
-        .target(name: "SwiftSpellCheckers", dependencies: ["SwiftSpellUtils", "SwiftSpellParser"]),
-        .target(name: "SwiftSpellParser", dependencies: ["SwiftSyntax", "SwiftSpellUtils"]),
+        .target(name: "SwiftSpellCheckers", dependencies: ["SwiftSpellParser", "SwiftSyntax", "SwiftSpellUtils"]),
+        .target(name: "SwiftSpellParser", dependencies: ["SwiftSpellUtils"]),
         .target(name: "SwiftSpellUtils", dependencies: []),
         .testTarget(name: "SwiftSpellTests", dependencies: ["SwiftSpell"]),
     ]

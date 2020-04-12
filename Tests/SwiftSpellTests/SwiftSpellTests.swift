@@ -64,7 +64,7 @@ final class SwiftSpellTests: XCTestCase {
             public final class SC: C {}
             """#
 
-        let spellchecker = try SpellingChecker()
+        let spellchecker = try Spellchecker()
 
         let url = try temporaryFile(contents: source)
         let sourceFile = try SourceFile(at: FileLocation(file: url, directory: url.deletingLastPathComponent()))
