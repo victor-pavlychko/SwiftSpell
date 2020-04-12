@@ -1,5 +1,8 @@
 import XCTest
 @testable import SwiftSpell
+@testable import SwiftSpellCheckers
+@testable import SwiftSpellParser
+@testable import SwiftSpellUtils
 
 final class SwiftSpellTests: XCTestCase {
     func temporaryFile(path: String? = nil, contents: String) throws -> URL {
@@ -61,13 +64,13 @@ final class SwiftSpellTests: XCTestCase {
             public final class SC: C {}
             """#
 
-        let spellchecker = try Spellchecker()
+        let spellchecker = try SpellingChecker()
 
         let url = try temporaryFile(contents: source)
-        let sourceFile = try SourceFile(file: url, relativeTo: url.deletingLastPathComponent())
+        let sourceFile = try SourceFile(at: FileLocation(file: url, directory: url.deletingLastPathComponent()))
 
-        let declarationErrors = sourceFile
-            .declarations
+        let identifierErrors = sourceFile
+            .identifiers
             .flatMap { $0.tokenized() }
             .filter { !spellchecker.checkWord($0.text) }
 
@@ -78,7 +81,7 @@ final class SwiftSpellTests: XCTestCase {
             .filter { !spellchecker.checkWord($0.text) }
 
         var allErrors: Set<SourceText> = []
-        allErrors.formUnion(declarationErrors)
+        allErrors.formUnion(identifierErrors)
         allErrors.formUnion(commentErrors)
 
         let sortedErrors = allErrors.sorted(by: { $0.range.lowerBound < $1.range.lowerBound })

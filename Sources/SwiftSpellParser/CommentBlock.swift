@@ -1,17 +1,17 @@
 import SwiftSyntax
 
-struct CommentBlock {
-    let lines: [SourceText]
+public struct CommentBlock {
+    public let lines: [SourceText]
 }
 
 extension CommentBlock: CustomStringConvertible {
-    var description: String {
+    public var description: String {
         return #"<\#(type(of: self)): lines = \#(lines)>"#
     }
 }
 
 extension CommentBlock {
-    init?(trivia: Trivia, position: AbsolutePosition) {
+    public init?(trivia: Trivia, position: AbsolutePosition) {
         var position = position
 
         self.lines = trivia.flatMap { piece -> AnySequence<SourceText> in

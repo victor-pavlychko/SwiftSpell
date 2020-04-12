@@ -1,7 +1,7 @@
 import Foundation
 
 extension URL {
-    func path(relativeTo base: URL) -> String {
+    public func path(relativeTo base: URL) -> String {
         let pathComponents = self.pathComponents
         let baseComponents = base.pathComponents
 

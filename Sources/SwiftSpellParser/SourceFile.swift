@@ -1,25 +1,26 @@
 import Foundation
+import SwiftSpellUtils
 import SwiftSyntax
 
-struct SourceFile {
-    let declarations: [SourceText]
-    let commentBlocks: [CommentBlock]
-    let locationConverter: SourceLocationConverter
+public struct SourceFile {
+    public let identifiers: [Identifier]
+    public let commentBlocks: [CommentBlock]
+    public let locationConverter: SourceLocationConverter
 
-    init(file url: URL, relativeTo directory: URL) throws {
-        let tree = try SyntaxParser.parse(url)
+    public init(at location: FileLocation) throws {
+        let tree = try SyntaxParser.parse(location.file)
         let visitor = Visitor()
         visitor.walk(tree)
 
-        self.declarations = visitor.declarations
+        self.identifiers = visitor.identifiers
         self.commentBlocks = visitor.commentBlocks
-        self.locationConverter = SourceLocationConverter(file: url.path(relativeTo: directory), tree: tree)
+        self.locationConverter = SourceLocationConverter(file: location.relativePath, tree: tree)
     }
 }
 
 extension SourceFile {
     private class Visitor: UnifiedSyntaxVisitor {
-        var declarations: [SourceText] = []
+        var identifiers: [Identifier] = []
         var commentBlocks: [CommentBlock] = []
 
         private var contextStack: [DeclarationContext] = []
@@ -31,8 +32,8 @@ extension SourceFile {
                 }
             }
 
-            if let declarationProvider = node as? DeclarationProvider {
-                declarations.append(contentsOf: declarationProvider.declarations(context: contextStack))
+            if let parser = node as? IdentifierParser {
+                identifiers.append(contentsOf: parser.identifiers(context: contextStack))
             }
 
             if node.children.isEmpty, let trivia = node.trailingTrivia {

@@ -1,5 +1,7 @@
+import SwiftSpellParser
+
 extension SourceText {
-    func tokenized() -> [SourceText] {
+    public func tokenized() -> [SourceText] {
         return text
             .tokenized()
             .map { SourceText($0, baseRange: range) }
@@ -7,18 +9,22 @@ extension SourceText {
 }
 
 extension StringProtocol {
-    func tokenized() -> [SubSequence] {
+    public func tokenized() -> [SubSequence] {
         return sliced { previous, current, next in
             if current.isWhitespace || current.isNewline {
                 return .sliceAndConsume
             }
 
             if current == "_" {
-                if previous.isNumber, let next = next, next.isNumber {
+                if let previous = previous, previous.isNumber, let next = next, next.isNumber {
                     return .proceed
                 }
 
                 return .sliceAndConsume
+            }
+
+            guard let previous = previous else {
+                return .proceed
             }
 
             if current.isNumber {

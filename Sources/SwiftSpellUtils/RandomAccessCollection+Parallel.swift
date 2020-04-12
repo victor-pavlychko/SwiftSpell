@@ -1,7 +1,7 @@
 import Dispatch
 
 extension RandomAccessCollection {
-    func parallelForEach(_ body: (Element) -> Void) {
+    public func parallelForEach(_ body: (Element) -> Void) {
         guard count > 1 else {
             return forEach(body)
         }
@@ -11,7 +11,7 @@ extension RandomAccessCollection {
         }
     }
 
-    func parallelMap<T>(_ transform: (Element) -> T) -> [T] {
+    public func parallelMap<T>(_ transform: (Element) -> T) -> [T] {
         guard count > 1 else {
             return map(transform)
         }
@@ -24,7 +24,7 @@ extension RandomAccessCollection {
         }
     }
 
-    func parallelCompactMap<T>(_ transform: (Element) -> T?) -> [T] {
+    public func parallelCompactMap<T>(_ transform: (Element) -> T?) -> [T] {
         guard count > 1 else {
             return compactMap(transform)
         }
@@ -44,7 +44,7 @@ extension RandomAccessCollection {
         return results
     }
 
-    func parallelTryMap<T>(_ transform: (Element) throws -> T) -> [Result<T, Error>] {
+    public func parallelTryMap<T>(_ transform: (Element) throws -> T) -> [Result<T, Error>] {
         return parallelMap { element in
             return Result {
                 return try transform(element)

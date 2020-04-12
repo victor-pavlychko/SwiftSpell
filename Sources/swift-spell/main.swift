@@ -1,3 +1,12 @@
+import ArgumentParser
 import Foundation
 
-print("Hello, World!")
+struct SwiftSpell: ParsableCommand {
+    static var configuration = CommandConfiguration(
+        abstract: "A utility for checking spelling in Swift code.",
+        subcommands: [Check.self],
+        defaultSubcommand: Check.self
+    )
+}
+
+SwiftSpell.main()

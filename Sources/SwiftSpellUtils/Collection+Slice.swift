@@ -1,11 +1,11 @@
-enum CollectionSliceOperation {
+public enum CollectionSliceOperation {
     case sliceAndKeep
     case sliceAndConsume
     case proceed
 }
 
 extension Collection {
-    func sliced(omittingEmptySubsequences: Bool = true, whereSeparator isSeparator: (Element, Element, Element?) throws -> CollectionSliceOperation) rethrows -> [SubSequence] {
+    public func sliced(omittingEmptySubsequences: Bool = true, whereSeparator isSeparator: (Element?, Element, Element?) throws -> CollectionSliceOperation) rethrows -> [SubSequence] {
         var result: [SubSequence] = []
         var nextStartIndex = startIndex
 
@@ -20,8 +20,8 @@ extension Collection {
             current = next
             next = iterator.next()
 
-            if let previous = previous, let current = current {
-                let operation = try isSeparator(previous.element, current.element, next?.element)
+            if let current = current {
+                let operation = try isSeparator(previous?.element, current.element, next?.element)
 
                 if operation != .proceed {
                     if !omittingEmptySubsequences || nextStartIndex != current.index {
