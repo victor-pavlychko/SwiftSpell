@@ -1,7 +1,8 @@
 import Foundation
+import SwiftSpellParser
 import SwiftSpellUtils
 
-public class SpellingChecker: Checker {
+public class SpellingChecker {
     private let dictionary: Set<String>
 
     public init() throws {
@@ -22,7 +23,28 @@ public class SpellingChecker: Checker {
 
         self.dictionary = dictionary
     }
+}
 
+extension SpellingChecker: Checker {
+    public func checkIdentifier(_ identifier: Identifier) -> AnySequence<CheckerMessage> {
+        return identifier
+            .tokenized()
+            .filter { !checkWord($0.text) }
+            .map { CheckerMessage(position: $0.range.lowerBound, message: "Unknown word: \($0.text)") }
+            .asAnySequence()
+    }
+
+    public func checkComment(_ comment: Comment) -> AnySequence<CheckerMessage> {
+        return comment
+            .lines
+            .flatMap { $0.tokenized() }
+            .filter { !checkWord($0.text) }
+            .map { CheckerMessage(position: $0.range.lowerBound, message: "Unknown word: \($0.text)") }
+            .asAnySequence()
+    }
+}
+
+extension SpellingChecker {
     public func checkWord(_ word: String) -> Bool {
         guard word.allSatisfy({ $0.isLetter }) else {
             return true
@@ -68,7 +90,16 @@ private let suffixes: [(suffix: String, ender: String)] = [
     ("ing", "y"),
 
     // Verb suffixes - extra
+    ("ed", ""),
+    ("ed", "e"),
+    ("ied", "y"),
+    ("ing", ""),
+    ("ing", "e"),
+    ("mmed", "m"),
     ("mming", "m"),
+    ("rred", "r"),
+    ("rring", "r"),
+    ("tted", "t"),
     ("tting", "t"),
 
     // Adjective suffixes
@@ -78,6 +109,9 @@ private let suffixes: [(suffix: String, ender: String)] = [
     ("est", "e"),
 
     // Adjective suffixes - extra
+    ("ability", ""),
+    ("able", ""),
+    ("ier", "y"),
     ("ized", ""),
 ]
 
@@ -86,5 +120,39 @@ private let suffixes: [(suffix: String, ender: String)] = [
 private let terms: [String] = [
     "lhs",
     "rhs",
+    "byte",
     "iterator",
+    "software",
+    "todo",
+    "fixme",
+    "http",
+    "https",
+    "html",
+    "xml",
+    "json",
+    "js",
+    "struct",
+    "args",
+    "params",
+    "int",
+    "crc",
+    "stat",
+    "org",
+    "com",
+    "www",
+    "lookup",
+    "crypt",
+    "decrypt",
+    "url",
+    "lib",
+    "unencrypted",
+    "accessor",
+    "init",
+    "autoreleasepool",
+
+    // Consider some kind of word splitter?
+    "callback",
+    "bitmap",
+    "filename",
+    "userdata",
 ]

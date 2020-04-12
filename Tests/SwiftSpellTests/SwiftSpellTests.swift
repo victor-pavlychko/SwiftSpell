@@ -75,7 +75,7 @@ final class SwiftSpellTests: XCTestCase {
             .filter { !spellchecker.checkWord($0.text) }
 
         let commentErrors = sourceFile
-            .commentBlocks
+            .comments
             .flatMap { $0.lines }
             .flatMap { $0.tokenized() }
             .filter { !spellchecker.checkWord($0.text) }

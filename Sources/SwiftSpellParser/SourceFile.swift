@@ -4,7 +4,7 @@ import SwiftSyntax
 
 public struct SourceFile {
     public let identifiers: [Identifier]
-    public let commentBlocks: [CommentBlock]
+    public let comments: [Comment]
     public let locationConverter: SourceLocationConverter
 
     public init(at location: FileLocation) throws {
@@ -13,7 +13,7 @@ public struct SourceFile {
         visitor.walk(tree)
 
         self.identifiers = visitor.identifiers
-        self.commentBlocks = visitor.commentBlocks
+        self.comments = visitor.comments
         self.locationConverter = SourceLocationConverter(file: location.relativePath, tree: tree)
     }
 }
@@ -21,14 +21,14 @@ public struct SourceFile {
 extension SourceFile {
     private class Visitor: UnifiedSyntaxVisitor {
         var identifiers: [Identifier] = []
-        var commentBlocks: [CommentBlock] = []
+        var comments: [Comment] = []
 
         private var contextStack: [DeclarationContext] = []
 
         override func visitAny<Node>(_ node: Node) -> SyntaxVisitorContinueKind where Node: SyntaxProtocol {
             if node.children.isEmpty, let trivia = node.leadingTrivia {
-                if let commentBlock = CommentBlock(trivia: trivia, position: node.position) {
-                    commentBlocks.append(commentBlock)
+                if let comment = Comment(trivia: trivia, position: node.position) {
+                    comments.append(comment)
                 }
             }
 
@@ -37,8 +37,8 @@ extension SourceFile {
             }
 
             if node.children.isEmpty, let trivia = node.trailingTrivia {
-                if let commentBlock = CommentBlock(trivia: trivia, position: node.endPositionBeforeTrailingTrivia) {
-                    commentBlocks.append(commentBlock)
+                if let comment = Comment(trivia: trivia, position: node.endPositionBeforeTrailingTrivia) {
+                    comments.append(comment)
                 }
             }
 

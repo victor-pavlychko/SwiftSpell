@@ -1,16 +1,16 @@
 import SwiftSyntax
 
-public struct CommentBlock {
+public struct Comment {
     public let lines: [SourceText]
 }
 
-extension CommentBlock: CustomStringConvertible {
+extension Comment: CustomStringConvertible {
     public var description: String {
         return #"<\#(type(of: self)): lines = \#(lines)>"#
     }
 }
 
-extension CommentBlock {
+extension Comment {
     public init?(trivia: Trivia, position: AbsolutePosition) {
         var position = position
 

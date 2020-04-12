@@ -19,7 +19,11 @@ extension SwiftSpell {
 
         func run() throws {
             let lock = DispatchQueue(label: #function)
-            let checker = try SpellingChecker()
+
+            let checkers: [Checker] = [
+                try SpellingChecker(),
+            ]
+
             let inputFiles = FileManager.default.listFiles(at: options.inputs, extensions: ["swift"])
 
             inputFiles.parallelForEach { location in
@@ -28,28 +32,19 @@ extension SwiftSpell {
 
                     let identifierErrors = sourceFile
                         .identifiers
-                        .flatMap { $0.tokenized() }
-                        .filter { !checker.checkWord($0.text) }
+                        .flatMap { identifier in checkers.flatMap { checker in checker.checkIdentifier(identifier) } }
+                        .map { $0.format(using: sourceFile.locationConverter) }
 
                     let commentErrors = sourceFile
-                        .commentBlocks
-                        .flatMap { $0.lines }
-                        .flatMap { $0.tokenized() }
-                        .filter { !checker.checkWord($0.text) }
+                        .comments
+                        .flatMap { comment in checkers.flatMap { checker in checker.checkComment(comment) } }
+                        .map { $0.format(using: sourceFile.locationConverter) }
 
-                    var allErrors: Set<SourceText> = []
+                    var allErrors: Set<FormattedMessage> = []
                     allErrors.formUnion(identifierErrors)
                     allErrors.formUnion(commentErrors)
 
-                    let errorMessages = allErrors
-                        .map {
-                            ErrorMessage(
-                                location: sourceFile.locationConverter.location(for: $0.range.lowerBound),
-                                kind: .warning,
-                                message: "Unknown word: \($0.text)"
-                            )
-                        }
-                        .sorted()
+                    let errorMessages = allErrors.sorted()
 
                     lock.sync {
                         for message in errorMessages {
